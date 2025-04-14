@@ -1,113 +1,79 @@
 package hotel.databaseOperation;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JOptionPane;
-
 import hotel.classes.Food;
 
-/**
- *
- * @author Faysal Ahmed
- */
 public class FoodDb {
-    
-    Connection conn = DataBaseConnection.connectTODB();
-    PreparedStatement statement = null;
-    ResultSet result = null;
-    
-     public void insertFood(Food food) {
-        try {
-            String insertFood = "insert into food('name','price') values('" + food.getName() + "'," + food.getPrice() + ")";
 
-            statement = conn.prepareStatement(insertFood);
+    private final Connection conn = DataBaseConnection.connectTODB();
 
-            statement.execute();
+    public void insertFood(Food food) {
+        String insertSQL = "INSERT INTO food (name, price) VALUES (?, ?)";
 
-            JOptionPane.showMessageDialog(null, "successfully inserted a new Food Type");
+        try (PreparedStatement statement = conn.prepareStatement(insertSQL)) {
+            statement.setString(1, food.getName());
+            statement.setDouble(2, food.getPrice());
+
+            statement.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Successfully inserted a new Food Type");
 
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, ex.toString() + "\n" + "InsertQuery of Food Failed");
-        }
-        finally
-        {
-            flushStatmentOnly();
+            JOptionPane.showMessageDialog(null, ex + "\nInsert query for Food failed");
         }
     }
 
-    public ResultSet getFoods() {
-        try {
-            String query = "select * from food";
-            statement = conn.prepareStatement(query);
-            result = statement.executeQuery();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, ex.toString() + "\n error coming from returning all food DB Operation");
-        }
-        
+    public List<Food> getFoods() {
+        List<Food> foodList = new ArrayList<>();
+        String query = "SELECT * FROM food";
 
-        return result;
+        try (PreparedStatement statement = conn.prepareStatement(query);
+             ResultSet result = statement.executeQuery()) {
+
+            while (result.next()) {
+                Food food = new Food();
+                food.setFoodId(result.getInt("food_id"));
+                food.setName(result.getString("name"));
+                food.setPrice(result.getDouble("price"));
+                foodList.add(food);
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, ex + "\nError retrieving all foods");
+        }
+
+        return foodList;
     }
 
     public void updateFood(Food food) {
-        try {
-            String updateFood = "update food set name= '" + food.getName() + "', price= " + food.getPrice() + " where food_id = " + food.getFoodId();
+        String updateSQL = "UPDATE food SET name = ?, price = ? WHERE food_id = ?";
 
-            statement = conn.prepareStatement(updateFood);
+        try (PreparedStatement statement = conn.prepareStatement(updateSQL)) {
+            statement.setString(1, food.getName());
+            statement.setDouble(2, food.getPrice());
+            statement.setInt(3, food.getFoodId());
 
-            statement.execute();
-
-            JOptionPane.showMessageDialog(null, "successfully updateFood ");
+            statement.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Successfully updated food");
 
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, ex.toString() + "\n" + "updateFood of Food Failed");
-        }
-        finally
-        {
-            flushStatmentOnly();
+            JOptionPane.showMessageDialog(null, ex + "\nUpdate query for Food failed");
         }
     }
 
     public void deleteFood(int foodId) {
-        try {
-            String deleteQuery = "delete from food where food_id=" + foodId;
-            statement = conn.prepareStatement(deleteQuery);
-            statement.execute();
-            JOptionPane.showMessageDialog(null, "Deleted food");
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, ex.toString() + "\n" + "Delete query FOod Failed");
-        }
-        finally
-        {
-            flushStatmentOnly();
-        }
+        String deleteSQL = "DELETE FROM food WHERE food_id = ?";
 
+        try (PreparedStatement statement = conn.prepareStatement(deleteSQL)) {
+            statement.setInt(1, foodId);
+
+            statement.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Deleted food");
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, ex + "\nDelete query for Food failed");
+        }
     }
-    
-    public void flushAll()
-    {
-        {
-                        try
-                        {
-                            statement.close();
-                            result.close();
-                        }
-                        catch(SQLException ex)
-                        {System.err.print(ex.toString()+" >> CLOSING DB");}
-                    }
-    }
-    
-    private void flushStatmentOnly()
-    {
-        {
-                        try
-                        {
-                            statement.close();
-                        }
-                        catch(SQLException ex)
-                        {System.err.print(ex.toString()+" >> CLOSING DB");}
-                    }
-    }
-    
 }
