@@ -78,9 +78,9 @@ public class Booking {
         this.person = person;
     }
 
-    public ArrayList<Room> getRooms() {
-        return rooms;
-    }
+   public List<Room> getRooms() {
+    return rooms;
+}
     
     public int getRoomsFare()
     {
