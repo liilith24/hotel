@@ -571,8 +571,8 @@ public class RoomPanel extends javax.swing.JDialog {
         tfRoomID.setText(tableRooms.getModel().getValueAt(row, 0)+"");
         tfRoomNo.setText(tableRooms.getModel().getValueAt(row, 1)+"");
         tfBeds.setText(tableRooms.getModel().getValueAt(row, 2)+"");
-        checkTv.setSelected((tableRooms.getModel().getValueAt(row, 3)+"").equals("true") ? true:false);
-        checkWifi.setSelected((tableRooms.getModel().getValueAt(row, 4)+"").equals("true") ? true:false);
+        checkTv.setSelected((tableRooms.getModel().getValueAt(row, 3) + "").equals("true"));
+        checkWifi.setSelected((tableRooms.getModel().getValueAt(row, 4) + "").equals("true"));
         checkPhone.setSelected((tableRooms.getModel().getValueAt(row, 6) + "").equals("true"));
         checkPhone.setSelected((tableRooms.getModel().getValueAt(row, 6)+"").equals("true") ? true:false);
         int selectedIndex = getComboSearchIndex(tableRooms.getModel().getValueAt(row, 7)+"");  
